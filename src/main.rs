@@ -31,15 +31,36 @@ fn main() {
     if args.len() <= 1 {
         println!("Usage: rusty_clevo_fan [fan_duty_percentage]");
     }
-    let fan_duty: u8 = args[1].trim().parse::<u8>().expect("Error: wrong arg");
 
     sysio_init(EC_DATA, EC_SC);
-    set_fan_duty(fan_duty);
+    
+    let parsed_arg = parse_args(args);
+    match parsed_arg {
+        -29 => print_help(),
+        -30 => {
+            println!("Dump fan and cpu info:\n");
+            println!("CPU temp: {}", get_cpu_temp());
+            println!("GPU temp: {}", get_gpu_temp());
+        },
+        _ => set_fan_duty(parsed_arg as u8),
+    };
+}
+
+fn parse_args(args: Vec<String>) -> i16 {
+    if args[1].contains("-h") {
+        return -29;
+    } else if args[1].contains("-d") {
+        return -30;
+    } else {
+        return args[1].trim()
+            .parse::<i16>()
+            .expect(&format!("Error: wrong argument: {}", args[1]));
+    }
 }
 
 fn set_fan_duty(fan_duty: u8) {
-    if fan_duty < 50 || fan_duty > 100 {
-        panic!("Error: wrong arg duty: {}", fan_duty);
+    if fan_duty < 40 || fan_duty > 100 {
+        panic!("Error: wrong arg fan duty: {}", fan_duty);
     }
     let value = (fan_duty as f32 / 100.0) * 255.0;
 
@@ -47,8 +68,12 @@ fn set_fan_duty(fan_duty: u8) {
     println!("Change fan duty to: {}%", fan_duty);
 }
 
+fn get_gpu_temp() -> u8 {
+    sysio_read(EC_REG_GPU_TEMP as u8)
+}
+
 fn get_cpu_temp() -> u8 {
-    sysio_read(EC_SC as u16, EC_REG_CPU_TEMP as u16)
+    sysio_read(EC_REG_CPU_TEMP as u8)
 }
     
 /// Init the cpu registers for r/w
@@ -98,26 +123,35 @@ fn sysio_wait(port: u16, flag: u8, value: u8) -> Result<(), String> {
 ///
 /// #Example
 /// ```
-/// sysio_read(EC_SC as u16, EC_REG_CPU_TEMP as u16);
+/// sysio_read(EC_REG_CPU_TEMP as u16);
 /// ```
-fn sysio_read(port: u16, read_port: u16) -> u8 {
-    let mut wait = sysio_wait(port, IBF, 0);
+fn sysio_read(read_port: u8) -> u8 {
+    let mut wait = sysio_wait(EC_SC as u16, IBF, 0);
     match wait {
-        Ok(()) => unsafe { cpuio::outb(EC_SC_READ_CMD as u8, port); },
+        Ok(()) => unsafe { 
+            let mut select = cpuio::UnsafePort::<u8>::new(EC_SC as u16);
+            select.write(EC_SC_READ_CMD as u8);
+        },
         Err(error) => panic!("{}", error),
     };
 
-    wait = sysio_wait(port, IBF, 0);
+    wait = sysio_wait(EC_SC as u16, IBF, 0);
     match wait {
-        Ok(()) => unsafe { cpuio::outb(read_port as u8, EC_DATA as u16); },
+        Ok(()) => unsafe { 
+            let mut data_port = cpuio::UnsafePort::<u8>::new(EC_DATA as u16);
+            data_port.write(read_port);
+        },
         Err(error) => panic!("{}", error),
     };
 
 
     let value: u8;
-    wait = sysio_wait(port, OBF, 1);
+    wait = sysio_wait(EC_SC as u16, OBF, 1);
     match wait {
-        Ok(()) => unsafe { value = cpuio::inb(EC_DATA as u16); },
+        Ok(()) => unsafe { 
+            let mut data_port = cpuio::UnsafePort::<u8>::new(EC_DATA as u16);
+            value = data_port.read();
+        },
         Err(error) => panic!("{}", error),
     }; 
 
@@ -164,4 +198,16 @@ fn sysio_write(cmd: u8, port: u8, value: u8) {
         Ok(()) => (),
         Err(error) => panic!("{}", error),
     };
+}
+
+fn print_help() {
+    println!("Fan control utility for Clevo laptops\n");
+    println!("Usage: rusty_clevo_fan [fan_duty_percentage]");
+    println!("Arguments\n\t[fan_duty_percentage]\tTarget fan duty in percentage, from 40 to 100");
+    println!("\t-h\tPrint this help and exit");
+    println!("\t-d\tDump fan and temp information\n");
+    println!("To use without sudo:");
+    println!("\tsudo chown root [path/to/rusty_clevo_fan/file]");
+    println!("\tsudo chmod u+s [path/to/rusty_clevo_fan/file]");
+    println!("DO NOT MANIPULATE OR QUERY EC I/O PORTS WHILE THIS PROGRAM IS RUNNING.");
 }
