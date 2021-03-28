@@ -24,6 +24,7 @@ fn main() {
     let args: Vec<String> = env::args().collect();
     if args.len() <= 1 {
         println!("Usage: rusty_clevo_fan [fan_duty_percentage]");
+        return;
     }
 
     sysio_init(EC_DATA, EC_SC);
