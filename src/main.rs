@@ -9,14 +9,8 @@ static OBF: u8 = 0;
 static EC_SC: u64 = 0x66;
 static EC_DATA: u64 = 0x62;
 static EC_SC_READ_CMD: u64 = 0x80;
-static EC_REG_SIZE: u64 = 0x100;
 static EC_REG_CPU_TEMP: u64 = 0x07;
 static EC_REG_GPU_TEMP: u64 = 0xCD;
-static EC_TEG_FAN_DUTY: u64 = 0xCE;
-static EC_REG_FAN_RPMS_HI: u64 = 0xD0;
-static EC_REG_FAN_RPMS_LO: u64 = 0xD1;
-
-static MAX_FAN_RPM: f32 = 4400.0;
 
 extern "C" {
     pub fn ioperm(
