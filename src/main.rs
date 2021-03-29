@@ -12,6 +12,11 @@ static EC_SC_READ_CMD: u64 = 0x80;
 static EC_REG_CPU_TEMP: u64 = 0x07;
 static EC_REG_GPU_TEMP: u64 = 0xCD;
 
+enum EParsedArgs {
+    Help,
+    Dump,
+    Duty(u8),
+}
 extern "C" {
     pub fn ioperm(
         from: libc::c_ulong, 
@@ -31,25 +36,25 @@ fn main() {
     
     let parsed_arg = parse_args(args);
     match parsed_arg {
-        -29 => print_help(),
-        -30 => {
+        EParsedArgs::Help => print_help(),
+        EParsedArgs::Dump => {
             println!("Dump fan and cpu info:\n");
             println!("CPU temp: {}", get_cpu_temp());
             println!("GPU temp: {}", get_gpu_temp());
         },
-        _ => set_fan_duty(parsed_arg as u8),
+        EParsedArgs::Duty(duty) => set_fan_duty(duty),
     };
 }
 
-fn parse_args(args: Vec<String>) -> i16 {
+fn parse_args(args: Vec<String>) -> EParsedArgs {
     if args[1].contains("-h") {
-        return -29;
+        return EParsedArgs::Help;
     } else if args[1].contains("-d") {
-        return -30;
+        return EParsedArgs::Dump;
     } else {
-        return args[1].trim()
-            .parse::<i16>()
-            .expect(&format!("Error: wrong argument: {}", args[1]));
+        return EParsedArgs::Duty(args[1].trim()
+            .parse::<u8>()
+            .expect(&format!("Error: wrong argument: {}", args[1])));
     }
 }
 
