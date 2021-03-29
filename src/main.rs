@@ -199,8 +199,8 @@ fn print_help() {
     println!("Fan control utility for Clevo laptops\n");
     println!("Usage: rusty_clevo_fan [fan_duty_percentage]");
     println!("Arguments\n\t[fan_duty_percentage]\tTarget fan duty in percentage, from 40 to 100");
-    println!("\t-h\tPrint this help and exit");
-    println!("\t-d\tDump fan and temp information\n");
+    println!("\t-h\t\t\tPrint this help and exit");
+    println!("\t-d\t\t\tDump fan and temp information\n");
     println!("To use without sudo:");
     println!("\tsudo chown root [path/to/rusty_clevo_fan/file]");
     println!("\tsudo chmod u+s [path/to/rusty_clevo_fan/file]");
