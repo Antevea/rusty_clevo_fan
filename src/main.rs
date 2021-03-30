@@ -9,15 +9,14 @@ static OBF: u8 = 0;
 static EC_SC: u64 = 0x66;
 static EC_DATA: u64 = 0x62;
 static EC_SC_READ_CMD: u64 = 0x80;
-static EC_REG_SIZE: u64 = 0x100;
 static EC_REG_CPU_TEMP: u64 = 0x07;
 static EC_REG_GPU_TEMP: u64 = 0xCD;
-static EC_TEG_FAN_DUTY: u64 = 0xCE;
-static EC_REG_FAN_RPMS_HI: u64 = 0xD0;
-static EC_REG_FAN_RPMS_LO: u64 = 0xD1;
 
-static MAX_FAN_RPM: f32 = 4400.0;
-
+enum EParsedArgs {
+    Help,
+    Dump,
+    Duty(u8),
+}
 extern "C" {
     pub fn ioperm(
         from: libc::c_ulong, 
@@ -30,31 +29,32 @@ fn main() {
     let args: Vec<String> = env::args().collect();
     if args.len() <= 1 {
         println!("Usage: rusty_clevo_fan [fan_duty_percentage]");
+        return;
     }
 
     sysio_init(EC_DATA, EC_SC);
     
     let parsed_arg = parse_args(args);
     match parsed_arg {
-        -29 => print_help(),
-        -30 => {
+        EParsedArgs::Help => print_help(),
+        EParsedArgs::Dump => {
             println!("Dump fan and cpu info:\n");
             println!("CPU temp: {}", get_cpu_temp());
             println!("GPU temp: {}", get_gpu_temp());
         },
-        _ => set_fan_duty(parsed_arg as u8),
+        EParsedArgs::Duty(duty) => set_fan_duty(duty),
     };
 }
 
-fn parse_args(args: Vec<String>) -> i16 {
+fn parse_args(args: Vec<String>) -> EParsedArgs {
     if args[1].contains("-h") {
-        return -29;
+        return EParsedArgs::Help;
     } else if args[1].contains("-d") {
-        return -30;
+        return EParsedArgs::Dump;
     } else {
-        return args[1].trim()
-            .parse::<i16>()
-            .expect(&format!("Error: wrong argument: {}", args[1]));
+        return EParsedArgs::Duty(args[1].trim()
+            .parse::<u8>()
+            .expect(&format!("Error: wrong argument: {}", args[1])));
     }
 }
 
@@ -204,8 +204,8 @@ fn print_help() {
     println!("Fan control utility for Clevo laptops\n");
     println!("Usage: rusty_clevo_fan [fan_duty_percentage]");
     println!("Arguments\n\t[fan_duty_percentage]\tTarget fan duty in percentage, from 40 to 100");
-    println!("\t-h\tPrint this help and exit");
-    println!("\t-d\tDump fan and temp information\n");
+    println!("\t-h\t\t\tPrint this help and exit");
+    println!("\t-d\t\t\tDump fan and temp information\n");
     println!("To use without sudo:");
     println!("\tsudo chown root [path/to/rusty_clevo_fan/file]");
     println!("\tsudo chmod u+s [path/to/rusty_clevo_fan/file]");
