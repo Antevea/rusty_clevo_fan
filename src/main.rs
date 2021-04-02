@@ -17,6 +17,7 @@ enum EParsedArgs {
     Dump,
     Duty(u8),
 }
+
 extern "C" {
     pub fn ioperm(
         from: libc::c_ulong, 

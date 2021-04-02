@@ -8,9 +8,9 @@ Forked from https://github.com/SkyLandTW/clevo-indicator
 ## Build and run
 ```console
 cargo build --release
-sudo ./target/release/rusty_clevo_fan %duty_percentage%
+sudo ./target/release/rusty_clevo_fan [duty_percentage]
 ```
 
 ## Dependencies:
-	* libc = "0.2"
-	* cpuio = "0.3"
+* libc = "0.2"
+* cpuio = "0.3"
