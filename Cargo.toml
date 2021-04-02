@@ -9,7 +9,7 @@ edition = "2018"
 [dependencies]
 libc = "0.2"
 cpuio = "0.3"
-#iced = "0.3"
+iced = "0.3"
 
 # Profile dev if default when u use cargo build
 [profile.dev]
