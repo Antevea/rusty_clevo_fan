@@ -12,7 +12,7 @@ impl ksni::Tray for MyTray {
         "help-about".into()
     }
     fn title(&self) -> String {
-        if self.checked { "CHECKED!" } else { "MyTray" }.into()
+        "Rusty fan control".into()
     }
     fn menu(&self) -> Vec<ksni::MenuItem<Self>> {
         use ksni::menu::*;
