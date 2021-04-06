@@ -11,6 +11,12 @@ cargo build --release
 sudo ./target/release/rusty_clevo_fan [duty_percentage]
 ```
 
+To use without root privileges:
+```console
+sudo chown root [path_to_rusty_clevo_fan]
+sudo chmod u+s  [path_to_rusty_clevo_fan]
+```
+
 ## Dependencies:
 * libc = "0.2"
 * cpuio = "0.3"
