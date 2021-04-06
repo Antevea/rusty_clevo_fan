@@ -38,7 +38,7 @@ pub fn get_cpu_temp() -> u8 {
 }
     
 /// Init the cpu registers for r/w
-pub fn sysio_init() -> Result<(), String> {
+pub fn fan_control_init() -> Result<(), String> {
     unsafe {
         if ioperm(EC_SC, 1, 1) != 0 {
             return Err("Error: sysio_init can't r/w ec registers. \
