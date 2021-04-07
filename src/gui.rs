@@ -8,12 +8,20 @@ struct MyTray {
 }
 
 impl ksni::Tray for MyTray {
-    fn icon_name(&self) -> String {
-        "help-about".into()
+    /// Path to find new installed icons
+    fn icon_theme_path(&self) -> String {
+        "$HOME/.local/share/icons/hicolor".into()
     }
+
+    /// Set installed icon w/ xdg-icon-resource
+    fn icon_name(&self) -> String {
+        "rust-icon-light".into()    
+    }
+
     fn title(&self) -> String {
         "Rusty fan control".into()
     }
+
     fn menu(&self) -> Vec<ksni::MenuItem<Self>> {
         use ksni::menu::*;
         vec![
