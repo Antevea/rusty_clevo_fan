@@ -29,5 +29,6 @@ xdg-icon-resource
 ```
 
 ## Dependencies:
-* libc = "0.2"
-* cpuio = "0.3"
+* libc
+* cpuio
+* ksni
