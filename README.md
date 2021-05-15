@@ -6,7 +6,7 @@ Forked from https://github.com/SkyLandTW/clevo-indicator
 
 # Usage
 
-## Build and run
+## Build and run (requires a nigthly Rust, because of cpuio lib)
 ```console
 cargo build --release
 sudo ./target/release/rusty_clevo_fan [duty_percentage]
@@ -30,5 +30,5 @@ xdg-icon-resource
 
 ## Dependencies:
 * libc
-* cpuio
+* cpuio (requires nigthly Rust)
 * ksni
