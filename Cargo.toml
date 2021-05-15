@@ -18,6 +18,7 @@ path = "src/gui.rs"
 libc = "0.2"
 cpuio = "0.3"
 ksni = "0.1.3"
+orbtk = { git = "https://github.com/redox-os/orbtk.git", branch = "develop" }
 
 # Profile dev if default when u use cargo build
 [profile.dev]
